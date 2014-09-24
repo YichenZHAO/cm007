@@ -100,6 +100,55 @@ gtbl <- gtbl %>%
 gtbl %>% glimpse
 
 # counting 
+
 gtbl %>%
   group_by(continent) %>%
   summarize(n_obs = n())
+  # another easier way to do it
+gtbl %>%
+  group_by(continent) %>%
+  tally
+
+gtbl %>%
+  group_by(continent) %>%
+  summarize(n_obs = n(), n_countries = n_distinct(country))
+
+# summarization
+
+gtbl %>%
+  group_by(continent) %>%
+  summarize(avg_life_exp = mean(lifeExp))
+
+gtbl %>%
+  filter(year %in% c(1952, 2007)) %>%
+  group_by(continent, year) %>%
+  summarise_each(funs(mean, median), lifeExp, gdpPercap)
+
+gtbl %>%
+  filter(continent == "Asia") %>%
+  group_by(year) %>%
+  summarize(min_life_exp = min(lifeExp), max_life_exp = max(lifeExp))
+
+gtbl %>%
+  filter(continent == "Asia") %>%
+  group_by(year) %>%
+  select(year, country, lifeExp) %>%
+  filter(min_rank(desc(lifeExp)) <2 | min_rank(lifeExp) <2) %>% # rank "lifeExp" in both descending and accending orders, and take only 1 (<2) measure
+  arrange(year)
+
+#  which country experienced the sharpest 5-year drop in life expectancy?
+gtbl %>%
+  group_by(continent, country) %>%
+  select(country, year, continent, lifeExp) %>%
+  mutate(le_delta = lifeExp - lag(lifeExp)) %>%                #lag function: shifting the data down
+  summarize(worst_le_delta = min(le_delta, na.rm = TRUE)) %>%
+  filter(min_rank(worst_le_delta) < 2) %>%
+  arrange(worst_le_delta)
+
+
+## knitr::kable()  #this could make table prettier
+
+
+
+
+
